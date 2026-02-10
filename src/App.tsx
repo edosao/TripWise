@@ -1,11 +1,9 @@
-function App() {
+import Navbar from "./components/layouts/Navbar";
+
+export default function App() {
   return (
-    <div className="h-screen flex items-center justify-center bg-blue-100">
-      <h1 className="text-4xl font-bold text-blue-800">
-        TripWise Tailwind Works!
-      </h1>
-    </div>
+    <>
+      <Navbar />
+    </>
   );
 }
-
-export default App;
