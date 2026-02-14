@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -7,12 +8,12 @@ export default function Hero() {
   const [date, setDate] = useState("");
   const [travelers, setTravelers] = useState(1);
 
+  const navigate = useNavigate();
+
   function handleSearch() {
-    console.log({
-      destination,
-      date,
-      travelers,
-    });
+    if (!destination) return;
+
+    navigate(`/results?q=${destination}`);
   }
 
   return (
