@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRef } from "react";
 import { headers } from "@/api/locations";
+import { useSearchHistory } from "@/hooks/useSearchHistory";
 
 export default function Hero() {
   const [destination, setDestination] = useState("");
@@ -28,9 +29,12 @@ export default function Hero() {
     }, 300); // wait 300ms before fetching
   };
 
+  const { history, addSearch } = useSearchHistory();
+
   function handleSearch() {
     if (!destination) return;
 
+    addSearch(destination);
     navigate(`/results?q=${destination}`);
   }
 
@@ -45,9 +49,13 @@ export default function Hero() {
         `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?namePrefix=${query}&limit=5`,
         { headers },
       );
+
+      console.log("Status:", res.status);
       const data = await res.json();
+      console.log("API data:", data);
       setSuggestions(data.data.map((city: any) => city.name));
     } catch (err) {
+      console.error(err);
       setError("Failed to fetch cities");
     } finally {
       setLoading(false);
@@ -70,11 +78,30 @@ export default function Hero() {
 
           <div className="mt-10 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
             <div className="flex flex-col gap-4 sm:flex-row">
-              <Input
-                placeholder="Where to?"
-                value={destination}
-                onChange={(e) => setDestination(e.target.value)}
-              />
+              <div className="relative w-full">
+                <Input
+                  placeholder="Where to?"
+                  value={destination}
+                  onChange={handleChange}
+                />
+
+                {destination && suggestions.length > 0 && (
+                  <ul className="absolute left-0 right-0 mt-2 max-h-48 overflow-y-auto rounded-lg border border-zinc-200 bg-white shadow-lg z-50">
+                    {suggestions.map((city) => (
+                      <li
+                        key={city}
+                        onClick={() => {
+                          setDestination(city);
+                          setSuggestions([]);
+                        }}
+                        className="cursor-pointer px-3 py-2 hover:bg-zinc-100"
+                      >
+                        {city}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
 
               <Input
                 type="date"
@@ -94,18 +121,27 @@ export default function Hero() {
               Plan Trip
             </Button>
           </div>
-          {destination && suggestions.length > 0 && (
-            <ul className="autocomplete-dropdown">
-              {suggestions.map((city) => (
-                <li
-                  key={city}
-                  onClick={() => setDestination(city)}
-                  className="cursor-pointer hover:bg-gray-200 p-1"
-                >
-                  {city}
-                </li>
-              ))}
-            </ul>
+
+          <div className="mt-4 border-t pt-2"></div>
+
+          {history.length > 0 && (
+            <div className="mt-6">
+              <p className="text-sm font-medium text-zinc-500 mb-2">
+                Recent searches
+              </p>
+
+              <div className="flex flex-wrap gap-2">
+                {history.map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => setDestination(item)}
+                    className="px-3 py-1 text-sm rounded-full bg-zinc-100 hover:bg-zinc-200 transition"
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
         </div>
 

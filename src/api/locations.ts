@@ -1,7 +1,7 @@
 const BASE_URL = "https://wft-geo-db.p.rapidapi.com/v1/geo";
 
 export const headers = {
-  "X-RapidAPI-Key": import.meta.env.VITE_RAPID_API_KEY,
+  "X-RapidAPI-Key": "221088674amsh70c6ca6ac7965e2p1d8febjsn060f0bc2bc4a",
   "X-RapidAPI-Host": "wft-geo-db.p.rapidapi.com",
 };
 
