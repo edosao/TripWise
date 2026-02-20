@@ -2,19 +2,57 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useRef } from "react";
+import { headers } from "@/api/locations";
 
 export default function Hero() {
   const [destination, setDestination] = useState("");
   const [date, setDate] = useState("");
   const [travelers, setTravelers] = useState(1);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const navigate = useNavigate();
+
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setDestination(value);
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    debounceRef.current = setTimeout(() => {
+      fetchCities(value);
+    }, 300); // wait 300ms before fetching
+  };
 
   function handleSearch() {
     if (!destination) return;
 
     navigate(`/results?q=${destination}`);
   }
+
+  const fetchCities = async (query: string) => {
+    if (!query) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(
+        `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?namePrefix=${query}&limit=5`,
+        { headers },
+      );
+      const data = await res.json();
+      setSuggestions(data.data.map((city: any) => city.name));
+    } catch (err) {
+      setError("Failed to fetch cities");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <section className="relative overflow-hidden">
@@ -56,6 +94,19 @@ export default function Hero() {
               Plan Trip
             </Button>
           </div>
+          {destination && suggestions.length > 0 && (
+            <ul className="autocomplete-dropdown">
+              {suggestions.map((city) => (
+                <li
+                  key={city}
+                  onClick={() => setDestination(city)}
+                  className="cursor-pointer hover:bg-gray-200 p-1"
+                >
+                  {city}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="relative hidden w-full max-w-xl md:block">

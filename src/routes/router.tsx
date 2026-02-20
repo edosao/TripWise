@@ -9,11 +9,11 @@ import Layout from "@/components/layouts/layout";
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Layout />, // ✅ layout now
+    element: <Layout />, //
     children: [
       {
         index: true,
-        element: <Home />, // 👈 landing page
+        element: <Home />, //
       },
       {
         path: "results",
